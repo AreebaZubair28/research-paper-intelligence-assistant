@@ -13,4 +13,4 @@ result = generate_answer(question, retrieved_chunks)
 print(f"Answer: {result['answer']}\n")
 print("Sources used:")
 for i, source in enumerate(result["sources"], 1):
-    print(f"[{i}] {source[:150]}...")
+    print(f"[{i}] {source}...")
