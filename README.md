@@ -30,3 +30,8 @@ pip install -r requirements.txt
 - Chunking is currently fixed-size (character-based), not sentence/paragraph-aware —
   can sometimes split relevant content awkwardly across chunk boundaries.
 - PDF extraction can include some noise from figures/captions.
+- Self-reported confidence is unreliable: on well-known papers, the model can answer
+  correctly using memorized training knowledge even when retrieved passages don't
+  actually support the answer, while still rating itself "Fully supported." Programmatic
+  grounding verification (e.g. checking answer content against retrieved text) is needed
+  instead of relying on the model's self-assessment.
