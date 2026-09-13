@@ -11,8 +11,11 @@ client = OpenAI(
 
 MODEL = "poolside/laguna-xs-2.1:free"  # swap if this 404s later — check openrouter.ai/collections/free-models
 
-def generate_answer(question, retrieved_chunks):
-    context = "\n\n".join([f"[Passage {i+1}]: {chunk}" for i, chunk in enumerate(retrieved_chunks)])
+def generate_answer(question, retrieved_chunks_with_sources):
+    context = "\n\n".join([
+        f"[Passage {i+1}, source: {source}]: {chunk}"
+        for i, (chunk, source) in enumerate(retrieved_chunks_with_sources)
+    ])
 
     system_prompt = (
     "You are a research assistant. Answer the question using ONLY the provided passages. "
@@ -20,7 +23,8 @@ def generate_answer(question, retrieved_chunks):
     "Do not use outside knowledge. "
     "At the end of your answer, add a line starting with 'Confidence:' rating how well "
     "the passages support your answer (Fully supported / Partially supported / Not supported)."
- )
+    )
+
     user_prompt = f"Passages:\n{context}\n\nQuestion: {question}"
 
     response = client.chat.completions.create(
@@ -35,5 +39,5 @@ def generate_answer(question, retrieved_chunks):
 
     return {
         "answer": response.choices[0].message.content,
-        "sources": retrieved_chunks
+        "sources": retrieved_chunks_with_sources   # now includes source filenames
     }
