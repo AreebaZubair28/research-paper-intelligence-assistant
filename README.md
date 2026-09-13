@@ -4,15 +4,15 @@
 Answers questions about research papers by retrieving the most relevant passages from the source document and generating responses grounded in that retrieved evidence, rather than relying on the model's general knowledge alone. Aims to flag when a claim in the answer isn't clearly supported by the retrieved passages.
 
 ## Status
-🚧 In development — multi-document ingestion, chunking, embedding, retrieval, and
-grounded answer generation all working. Refining unsupported-claim detection next.
+🚧 In development — multi-document ingestion, chunking, embedding, retrieval, grounded
+answer generation, and independent grounding verification all working and tested.
 
 ## Tech Stack
 - Python
 - pypdf (PDF text extraction)
 - sentence-transformers (local embeddings, all-MiniLM-L6-v2)
 - ChromaDB (vector storage/retrieval)
-- OpenRouter API (LLM generation) — coming in next update
+- OpenRouter API (LLM generation and grounding verification)
 
 ## Current Capabilities
 - Loads multiple PDFs, splits them into chunks, embeds them, and retrieves the most
@@ -46,3 +46,37 @@ pip install -r requirements.txt
 - Verifying whether an answer is truly grounded requires inspecting full retrieved
   passages, not truncated previews — truncated debug output can make correctly-grounded
   answers look unsupported.
+
+## Architecture
+
+1. **Ingestion** (`src/ingest.py`) — loads PDF(s), extracts text, splits into overlapping
+   character-based chunks, tags each chunk with its source document.
+2. **Embedding + Storage** (`src/embed_store.py`) — converts each chunk into a vector
+   using a local embedding model (`sentence-transformers`), stores vectors in a
+   ChromaDB collection alongside source metadata.
+3. **Retrieval** (`src/embed_store.py`) — embeds the user's question, finds the top-k
+   most similar chunks across all loaded documents using cosine similarity.
+4. **Generation** (`src/generate.py`) — sends retrieved chunks + the question to an LLM
+   (via OpenRouter), instructed to answer using only the provided evidence, with a
+   self-reported confidence rating.
+5. **Grounding Check** (`src/generate.py`) — a second, independent LLM pass that verifies
+   whether the generated answer's claims are actually supported by the retrieved
+   passages, rather than relying solely on the model's self-assessment from step 4.
+
+## Example
+
+**Question:** "What problem does the degradation problem refer to, and how do residual
+connections address it?"
+
+**Answer:** The degradation problem refers to accuracy saturating and then degrading
+rapidly as network depth increases — not caused by overfitting, but by increased training
+error. Residual connections address this by reformulating stacked layers to learn a
+residual mapping F(x) := H(x) - x instead of the original mapping directly, via shortcut
+("skip") connections that add the input back to the output.
+
+**Confidence:** Fully supported
+**Sources:** 3 passages from "Deep Residual Learning for Image Recognition" (correctly
+excluded the unrelated "Attention Is All You Need" paper also loaded in the same session)
+
+See `EVALUATION.md` for full test cases, including a deliberately unanswerable question
+used to verify the system correctly identifies when evidence is insufficient.
