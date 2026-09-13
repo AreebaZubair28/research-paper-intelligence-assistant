@@ -24,6 +24,13 @@ grounded answer generation all working. Refining unsupported-claim detection nex
 - Tested on two unrelated papers (Transformer architecture, ResNet/residual learning)
   to confirm retrieval correctly distinguishes between documents rather than mixing
   content across them.
+- Includes a second-pass grounding check that independently verifies whether the
+  generated answer's claims are supported by the retrieved passages, rather than
+  relying solely on the model's self-reported confidence.
+- Tested on both answerable questions (correctly grounded, verified) and an
+  intentionally unanswerable question (Vision Transformer learning rates, not
+  covered by either source document) — correctly identified as unsupported in
+  both the initial answer and the independent grounding check.
 
 ## Setup
 \`\`\`bash

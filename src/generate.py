@@ -41,3 +41,26 @@ def generate_answer(question, retrieved_chunks_with_sources):
         "answer": response.choices[0].message.content,
         "sources": retrieved_chunks_with_sources   # now includes source filenames
     }
+
+def check_grounding(answer, retrieved_chunks):
+    context = "\n\n".join([f"[Passage {i+1}]: {chunk}" for i, (chunk, source) in enumerate(retrieved_chunks)])
+
+    system_prompt = (
+        "You are a fact-checking assistant. You will be given an answer and a set of "
+        "source passages. Identify any specific claims in the answer that are NOT "
+        "directly supported by the passages. For each unsupported claim, quote it and "
+        "explain why it isn't backed by the passages. If everything is supported, say "
+        "'All claims are supported by the provided passages.'"
+    )
+    user_prompt = f"Passages:\n{context}\n\nAnswer to check:\n{answer}"
+
+    response = client.chat.completions.create(
+        model=MODEL,
+        max_tokens=500,
+        temperature=0.1,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return response.choices[0].message.content
