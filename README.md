@@ -1,5 +1,9 @@
 # Research Paper Intelligence Assistant
 
+A RAG-based assistant that answers questions from research papers using
+retrieved evidence and identifies answers that are not sufficiently
+supported by the source documents.
+
 ## Overview
 
 The system retrieves relevant passages from uploaded research papers and
