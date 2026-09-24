@@ -1,7 +1,11 @@
 # Research Paper Intelligence Assistant
 
 ## Overview
-Answers questions about research papers by retrieving the most relevant passages from the source document and generating responses grounded in that retrieved evidence, rather than relying on the model's general knowledge alone. Aims to flag when a claim in the answer isn't clearly supported by the retrieved passages.
+
+The system retrieves relevant passages from uploaded research papers and
+uses them as context for LLM-generated answers. A separate grounding check
+then verifies whether the generated claims are supported by the retrieved
+evidence.
 
 ## Status
 🚧 In development — multi-document ingestion, chunking, embedding, retrieval, grounded
