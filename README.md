@@ -57,6 +57,9 @@ pip install -r requirements.txt
 
 ## Architecture
 
+![Research Paper Intelligence Assistant Architecture](docs/architecture.png)
+
+The system follows the following pipeline:
 1. **Ingestion** (`src/ingest.py`) — loads PDF(s), extracts text, splits into overlapping
    character-based chunks, tags each chunk with its source document.
 2. **Embedding + Storage** (`src/embed_store.py`) — converts each chunk into a vector
